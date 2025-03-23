@@ -33,8 +33,30 @@ class MainTab:
         main_frame.grid(sticky="nsew")
         self.parent.columnconfigure(0, weight=1)
         self.parent.rowconfigure(0, weight=1)
-        
-        # Status information
+        version_frame = ttk.LabelFrame(main_frame, text="Game Version", padding=10)
+        version_frame.grid(row=1, column=2, sticky="w", padx=5, pady=(0,5))
+        self.game_version_var = tk.StringVar(value=self.config.get("GAME_VERSION", GAME_VERSION_STEAM))
+        ggg_radio = ttk.Radiobutton(
+            version_frame, 
+            text=f"GGG Client ({PROCESS_NAMES[GAME_VERSION_GGG]})",
+            variable=self.game_version_var,
+            value=GAME_VERSION_GGG
+        )
+        ggg_radio.grid(row=0, column=0, sticky="w")
+
+        steam_radio = ttk.Radiobutton(
+            version_frame, 
+            text=f"Steam ({PROCESS_NAMES[GAME_VERSION_STEAM]})",
+            variable=self.game_version_var,
+            value=GAME_VERSION_STEAM
+        )
+        steam_radio.grid(row=1, column=0, sticky="w")
+
+        ttk.Button(
+            version_frame,
+            text="Apply",
+            command=self.update_game_version
+        ).grid(row=2, column=0, pady=(5,0))# Status information
         self.status_label = ttk.Label(main_frame, text="Status: Not Monitoring")
         self.status_label.grid(row=0, column=0, columnspan=3, sticky="w", pady=(0,5))
         
@@ -193,7 +215,24 @@ class MainTab:
             status = "Monitoring"
             
         self.status_label.config(text=f"Status: {status}")
+    def update_game_version(self):
+        """Update the game version configuration."""
+        new_version = self.game_version_var.get()
+        old_version = self.config.get("GAME_VERSION")
         
+        if new_version != old_version:
+            update_config("GAME_VERSION", new_version)
+            self.log_message(f"Game version updated to {new_version} ({PROCESS_NAMES[new_version]})")
+            
+            # If monitoring is active, we need to restart it for changes to take effect
+            if self.bot.monitoring:
+                self.bot.stop_monitoring()
+                messagebox.showinfo(
+                    "Restart Required", 
+                    "Monitoring has been stopped to apply the new game version. Please start monitoring again."
+                )
+        else:
+            self.log_message(f"Game version unchanged: {new_version}")   
     def update_position(self, x, y):
         """
         Update the position display.
