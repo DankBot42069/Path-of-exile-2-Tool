@@ -7,7 +7,7 @@ import pyautogui
 import keyboard
 
 from utils.config_utils import get_config
-from config.default_config import MONITOR_SLEEP_TIME, STATS_OFFSETS_MAP
+from config.default_config import *
 from utils.memory_utils import MemoryReader
 
 class AutoPotionBot:
