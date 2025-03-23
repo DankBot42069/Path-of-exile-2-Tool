@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from config.default_config import *
 
+
 # Configuration file path
 SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.json")
@@ -48,6 +49,7 @@ def create_default_config():
     """Create a default configuration."""
     global CONFIG
     CONFIG = {
+        "GAME_VERSION": DEFAULT_GAME_VERSION,  # Add this line
         "THRESHOLD_HP_LOWER": DEFAULT_THRESHOLD_HP_LOWER,
         "THRESHOLD_HP_UPPER": DEFAULT_THRESHOLD_HP_UPPER,
         "THRESHOLD_MP_LOWER": DEFAULT_THRESHOLD_MP_LOWER,
