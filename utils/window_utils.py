@@ -3,7 +3,7 @@
 
 import win32gui
 from utils.config_utils import get_config
-from config.default_config import WINDOW_TITLE
+from config.default_config import *
 
 def list_windows():
     """
