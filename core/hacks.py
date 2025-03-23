@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from config.default_config import PROCESS_NAME
+from utils.config_utils import get_config
+from config.default_config import *
 
 class GameHacks:
     """Implementation of game hacking features."""
@@ -26,9 +26,14 @@ class GameHacks:
             tuple: (success, message)
         """
         try:
+            # Get process name from config
+            config = get_config()
+            game_version = config.get("GAME_VERSION")
+            process_name = PROCESS_NAMES.get(game_version)
+            
             # Signature for zoom hack
             signature = "F3 0F 5D 0D ?? ?? ?? 02 F3 0F 11 8F"
-            address = self.memory_reader.aob_scan(PROCESS_NAME, signature)
+            address = self.memory_reader.aob_scan(process_name, signature)
             
             if not address:
                 return False, "Signature not found for Zoom hack."
@@ -53,12 +58,17 @@ class GameHacks:
             tuple: (success, message)
         """
         try:
+            # Get process name from config
+            config = get_config()
+            game_version = config.get("GAME_VERSION")
+            process_name = PROCESS_NAMES.get(game_version)
+            
             signature = (
                 "41 ?? ?? ?? ?? 74 ?? 0f ?? ?? eb ?? 41 ?? ?? ?? ba ?? ?? ?? ?? "
                 "48 ?? ?? ?? ?? ?? ?? e8 ?? ?? ?? ?? 8b ?? 49 ?? ?? e8 ?? ?? ?? ?? "
                 "48 ?? ?? 74 ?? 4C ?? ?? EB ?? 4C ?? ?? 41 ?? ?? ?? ?? 74 ??"
             )
-            address = self.memory_reader.aob_scan(PROCESS_NAME, signature)
+            address = self.memory_reader.aob_scan(process_name, signature)
             
             if not address:
                 return False, "Signature not found for Visibility hack."
@@ -81,8 +91,13 @@ class GameHacks:
             tuple: (success, message)
         """
         try:
+            # Get process name from config
+            config = get_config()
+            game_version = config.get("GAME_VERSION")
+            process_name = PROCESS_NAMES.get(game_version)
+            
             signature = "83 B8 ?? ?? 00 00 25 75 0F 0F B6 ?? ?? ?? 00 00"
-            address = self.memory_reader.aob_scan(PROCESS_NAME, signature)
+            address = self.memory_reader.aob_scan(process_name, signature)
             
             if not address:
                 return False, "Signature not found for Atlas Fog hack."
