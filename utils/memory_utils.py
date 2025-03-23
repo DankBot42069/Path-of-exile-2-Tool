@@ -4,8 +4,8 @@
 import struct
 import pymem
 import pymem.process
-from config.default_config import PROCESS_NAME, STATS_BASE_ADDRESS_OFFSET
-
+from config.default_config import *
+from utils.config_utils import get_config
 class MemoryReader:
     """Class for reading memory from the game process."""
     
@@ -23,8 +23,18 @@ class MemoryReader:
             bool: True if successful, False otherwise.
         """
         try:
-            self.pm = pymem.Pymem(PROCESS_NAME)
-            module = pymem.process.module_from_name(self.pm.process_handle, PROCESS_NAME)
+            # Get the process name from config
+            config = get_config()
+            game_version = config.get("GAME_VERSION")
+            process_name = PROCESS_NAMES.get(game_version)
+            
+            if not process_name:
+                print(f"Invalid game version: {game_version}")
+                return False
+                
+            print(f"Attaching to process: {process_name}")
+            self.pm = pymem.Pymem(process_name)
+            module = pymem.process.module_from_name(self.pm.process_handle, process_name)
             self.module_base = module.lpBaseOfDll
             self.stats_base_pointer = self.module_base + STATS_BASE_ADDRESS_OFFSET
             self.process_attached = True
