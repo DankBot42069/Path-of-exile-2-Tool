@@ -1,10 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Window configuration
-PROCESS_NAME = "PathOfExileSteam.exe"
-WINDOW_TITLE = "Path of Exile 2"
+# Add these lines at the top with other constants
+GAME_VERSION_GGG = "GGG"
+GAME_VERSION_STEAM = "Steam"
 
+# Modify the process name to include both options
+PROCESS_NAMES = {
+    GAME_VERSION_GGG: "PathOfExile.exe",
+    GAME_VERSION_STEAM: "PathOfExileSteam.exe"
+}
+# Default to Steam version as in original code
+DEFAULT_GAME_VERSION = GAME_VERSION_STEAM
+PROCESS_NAME = PROCESS_NAMES[DEFAULT_GAME_VERSION]
+WINDOW_TITLE = PROCESS_NAME
 # Memory offsets configuration
 STATS_BASE_ADDRESS_OFFSET = 0x03BB2158  # "PathOfExileSteam.exe" + 0x03BB2158
 
