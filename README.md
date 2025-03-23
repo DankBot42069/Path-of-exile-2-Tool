@@ -1,6 +1,6 @@
 # PoE2 Auto-Potion Bot
 
-This tool provides automatic potion usage and other quality-of-life features for Path of Exile 2. 
+This tool provides automatic potion usage and other quality-of-life features for Path of Exile 2. With support for steam and ggg versions.
 
 ## ⚠️ WARNING ⚠️
 
