@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 import os
 import sys
-
+from config.default_config import PROCESS_NAMES
+from utils.config_utils import get_config
 # Add the current directory to the path so we can import our modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -26,15 +24,18 @@ class PoE2AutoBot(tk.Tk):
         self.geometry("700x800")
         self.configure_style()
         
-        # Load configuration
         load_config()
+        config = get_config()
+
+        # Get the selected game version
+        game_version = config.get("GAME_VERSION")
         
         # Initialize memory reader
         self.memory_reader = MemoryReader()
         if not self.memory_reader.attach_to_process():
             messagebox.showwarning(
                 "Memory Warning", 
-                "Could not attach to game process. Some features may not work."
+                f"Could not attach to game process ({PROCESS_NAMES[game_version]}). Some features may not work."
             )
         
         # Initialize bot controller
