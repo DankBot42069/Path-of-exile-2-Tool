@@ -12,6 +12,7 @@ from utils.config_utils import load_config
 from utils.memory_utils import MemoryReader
 from ui.main_tab import MainTab
 from ui.hacks_tab import HacksTab
+from ui.entity_tab import EntityTab  # Import our new entity tab
 from core.bot import AutoPotionBot
 
 class PoE2AutoBot(tk.Tk):
@@ -21,7 +22,7 @@ class PoE2AutoBot(tk.Tk):
         super().__init__()
         
         self.title("PoE2 Auto-Potion Bot")
-        self.geometry("700x800")
+        self.geometry("800x800")
         self.configure_style()
         
         load_config()
@@ -49,13 +50,16 @@ class PoE2AutoBot(tk.Tk):
         
         # Create tabs
         self.main_tab = ttk.Frame(self.notebook)
+        self.entity_tab = ttk.Frame(self.notebook)  # New entity tab
         self.hacks_tab = ttk.Frame(self.notebook)
         
         self.notebook.add(self.main_tab, text="Auto Potion")
+        self.notebook.add(self.entity_tab, text="Entity Browser")  # Add entity tab
         self.notebook.add(self.hacks_tab, text="Game Hacks")
         
         # Initialize tab contents
         self.main_tab_ui = MainTab(self.main_tab, self.bot)
+        self.entity_tab_ui = EntityTab(self.entity_tab, self.memory_reader)  # Initialize entity tab
         self.hacks_tab_ui = HacksTab(self.hacks_tab, self.memory_reader)
         
         # Set up protocol for window close
@@ -86,6 +90,21 @@ class PoE2AutoBot(tk.Tk):
             foreground=[("selected", dark_fg)]
         )
         
+        # Configure Treeview for entity list
+        style.configure("Treeview", 
+            background=dark_bg,
+            foreground=dark_fg,
+            fieldbackground=dark_bg
+        )
+        style.configure("Treeview.Heading",
+            background=button_bg,
+            foreground=dark_fg
+        )
+        style.map("Treeview",
+            background=[("selected", "#4a6984")],
+            foreground=[("selected", "white")]
+        )
+        
         self.configure(background=dark_bg)
         
     def ui_callback(self, action, *args, **kwargs):
@@ -114,6 +133,10 @@ class PoE2AutoBot(tk.Tk):
         # Stop monitoring if active
         if self.bot.monitoring:
             self.bot.stop_monitoring()
+            
+        # Stop entity monitoring if active
+        if hasattr(self, 'entity_tab_ui') and self.entity_tab_ui.monitoring:
+            self.entity_tab_ui.stop_monitoring()
             
         # Unregister all hotkeys
         self.bot.update_hotkeys("", "", "")
