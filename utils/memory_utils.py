@@ -6,6 +6,7 @@ import pymem
 import pymem.process
 from config.default_config import *
 from utils.config_utils import get_config
+
 class MemoryReader:
     """Class for reading memory from the game process."""
     
@@ -14,6 +15,7 @@ class MemoryReader:
         self.module_base = None
         self.stats_base_pointer = None
         self.process_attached = False
+        self.entity_list_pointer = None
     
     def attach_to_process(self):
         """
@@ -37,12 +39,19 @@ class MemoryReader:
             module = pymem.process.module_from_name(self.pm.process_handle, process_name)
             self.module_base = module.lpBaseOfDll
             self.stats_base_pointer = self.module_base + STATS_BASE_ADDRESS_OFFSET
+            
+            # Also initialize entity list pointer
+            self.entity_list_pointer = self.resolve_pointer(self.stats_base_pointer, STATS_OFFSETS_MAP["EntityList"])
+            if not self.entity_list_pointer:
+                print(f"Warning: Failed to initialize entity list pointer")
+            
             self.process_attached = True
             return True
         except Exception as e:
             self.pm = None
             self.module_base = None
             self.stats_base_pointer = None
+            self.entity_list_pointer = None
             self.process_attached = False
             print(f"Failed to attach to process: {e}")
             return False
@@ -50,6 +59,34 @@ class MemoryReader:
     def is_attached(self):
         """Check if we're attached to the process."""
         return self.process_attached
+    
+    def is_valid_address(self, address):
+        """
+        Check if an address is likely to be valid.
+        
+        Args:
+            address (int): Memory address to check.
+            
+        Returns:
+            bool: True if likely valid, False otherwise.
+        """
+        # Basic sanity check - address should be in a reasonable range
+        if address is None:
+            return False
+            
+        if address < 0x10000:  # Too low
+            return False
+            
+        if address > 0x7FFFFFFFFFFF:  # Too high
+            return False
+            
+        # More specific range check for PoE2 (adjust if needed)
+        # Most valid pointers start with 0x1e3 or similar in PoE2
+        high_bits = address >> 32
+        if high_bits < 0x1e0 or high_bits > 0x1f0:  # Arbitrary range based on observations
+            return False
+            
+        return True
     
     def resolve_pointer(self, base, offsets):
         """
@@ -139,6 +176,8 @@ class MemoryReader:
                 en_addr = self.resolve_pointer(self.stats_base_pointer, offsets_map["EntityList"])
                 if en_addr:
                     stats["entity_list"] = self.pm.read_int(en_addr)
+                    # Update our cached entity list pointer
+                    self.entity_list_pointer = en_addr
 
             # Compute HP/MP/ES percents
             stats["hp_percent"] = 0.0
@@ -276,3 +315,22 @@ class MemoryReader:
         except Exception as e:
             print(f"Error in AOB scan: {e}")
             return None
+            
+    def get_entity_list_pointer(self):
+        """
+        Get the entity list pointer.
+        
+        Returns:
+            int: Entity list pointer, or None if not available.
+        """
+        if self.entity_list_pointer:
+            return self.entity_list_pointer
+            
+        # Try to resolve it from the stats base pointer
+        if self.stats_base_pointer:
+            self.entity_list_pointer = self.resolve_pointer(
+                self.stats_base_pointer, STATS_OFFSETS_MAP["EntityList"]
+            )
+            return self.entity_list_pointer
+            
+        return None
